@@ -22,27 +22,27 @@ The key insights and recommendations focus on the following areas:<br><br>
 
 ---
 <details>
-<summary><b>🔧 Methodology, tools & data quality</b></summary>
-<br>
+<summary><h3><b>🔧 Methodology, tools & data quality</b></h3></summary>
+
   
-## Methodology
+### Methodology
 - **Cohort analysis** : each customer is assigned to their first purchase month and tracked over time
 - **Retention matrix** : monthly retention rates per cohort using `DATE_DIFF` and chained CTEs
 - **Churn rate** : percentage of customers who never returned after month 0
 - **CLV segmentation** : customers ranked and split into deciles by total spend
 - **Review score vs retention** : joining orders, customers, and reviews to test whether satisfaction predicts churn
 
-## Skills & Tools
+### Skills & Tools
 - **SQL:** CTEs, window functions (`RANK()`, `NTILE()`, `SUM() OVER()`), `DATE_TRUNC`, `DATE_DIFF`, `COUNTIF`, multi-table joins, `HAVING`, subqueries
 - **BigQuery:** cloud data warehouse, CSV export
 - **Data quality:** null checks, duplicate detection, type casting, anomaly identification
 
-## Dataset
+### Dataset
 **Source:** [Olist Brazilian E-commerce — Kaggle](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
 
 Real transactional data from Olist covering September 2016 to October 2018. 9 tables including orders, customers, payments, reviews, products, and sellers.
 
-## Data Quality Notes
+### Data Quality Notes
 - `customer_id` is tied to each order, not to the person — all retention analysis uses `customer_unique_id` to correctly track returning customers
 - 2,965 orders have no delivery date — these are non-delivered orders (cancelled, in transit) and are excluded via `WHERE order_status = 'delivered'`
 - September and December 2016 each have only 1 order, excluded from cohort analysis
@@ -51,39 +51,32 @@ Real transactional data from Olist covering September 2016 to October 2018. 9 ta
 </details>
 
 ---
- 
-## Northstar Metrics
- 
-![KPI Summary](outputs/charts/01_kpi_summary.png)
- 
----
 
-## Executive Summary
+<div align="center">
+
+## Executive Summary 
+</div>
+
+![KPI Summary](outputs/charts/01_kpi_summary.png)
+
  
 ![Churn by Cohort](outputs/charts/03_churn_by_cohort.png)
  
-<table>
-<tr>
-<td width="50%" valign="top">
+**The core finding : Olist operates as a structural one-purchase platform.**
+96.5% of customers never return, across every cohort, every period, every satisfaction level.
+This is not a seasonal problem. It is a structural one.
+<br>
 
-**1. Over 95% of customers never come back**<br>
-Churn exceeds 95% across all cohorts. This is not a seasonal anomaly or a single underperforming period, it is a structural characteristic of the customer base. The vast majority of Olist customers make a single purchase and do not return, regardless of when they were acquired or what they bought.
+**Three findings explain the shape of the problem :**
 
-**2. The top 10% of customers generate 38% of revenue**<br>
-The top 10% of customers by spend account for 38% of total revenue, with an average spend of 632 BRL compared to just 32 BRL for the bottom 10%. This 20x gap means a small number of customers carry a disproportionate share of the business. Losing even a fraction of this segment has an outsized revenue impact.
-
-</td>
-<td width="50%" valign="top">
-
-**3. Older cohorts retain better**<br>
-The January 2017 cohort has a 7.25% retention rate, still far below healthy benchmarks, but notably ahead of later cohorts. Part of this is because they had more time to return before the data ends, but it also shows that long-term reengagement can work.
-
-**4. Unhappy customers churn the most**<br>
-Neutral customers (score 3) retain at 5.47%, outperforming both negative (2.38%) and positive (2.83%) segments. This counterintuitive result suggests that repeat purchasing on Olist is not primarily driven by satisfaction, it may be driven more by price, product availability, or lack of alternatives.
-
-</td>
-</tr>
-</table>
+- **Revenue is dangerously concentrated** : the top 10% of customers generate 38% of revenue,
+  spending 20x more than the bottom 10%. Losing even a small fraction of this segment has
+  an outsized impact.
+- **Older cohorts retain marginally better** : Jan 2017 peaks at 7.25%, the most reliable
+  benchmark with 19 months of observation. Still far below healthy e-commerce norms.
+- **Satisfaction does not predict retention** : neutral reviewers retain at 5.47%,
+  outperforming both positive (2.83%) and negative (2.38%) reviewers. Repeat purchasing on
+  Olist is driven by price or availability, not experience quality.
 
 ---
 
@@ -133,7 +126,12 @@ Neutral customers (score 3) retain at 5.47%, outperforming both negative (2.38%)
 - This concentration creates both a risk and an opportunity: retaining top-decile customers has an outsized effect on revenue, while acquiring more customers who match their profile would be disproportionately valuable.
 <br>
 
-**→** Build a VIP programme for decile 1 (free shipping, priority support, early access) to protect 38% of revenue. Run upgrade campaigns for deciles 2–4, they already spend meaningfully. Nudge them toward the decide 1 behaviour. 
+**→** Build a VIP programme for decile 1 (free shipping, priority support, early access) to protect
+38% of revenue.
+**→** Before running upgrade campaigns for deciles 2–4, identify what defines decile 1 behaviour :
+is it order frequency, basket size, or product category? This segmentation should be the next
+query and the answer determines whether the upgrade lever is a second-purchase incentive,
+a cross-sell, or a price anchor.
  <br>
 
 </details>
@@ -144,7 +142,10 @@ Neutral customers (score 3) retain at 5.47%, outperforming both negative (2.38%)
 ![Review vs Retention](outputs/charts/05_review_vs_retention.png)
  
 - Neutral customers (score 3) retain at **5.47%**
-- Positive reviewers retain at 2.83%, below neutral, likely because satisfied customers felt no unresolved reason to return
+- Positive reviewers retain at 2.83%, below neutral. Satisfaction does not drive return
+purchasing on Olist. The data points to an alternative driver : price competitiveness or
+product availability. Customers who rated 3 had an unresolved need and came back to
+fill it.
 - Negative reviewers churn most at 2.38%
 <br>
 
@@ -164,9 +165,9 @@ Neutral customers (score 3) retain at 5.47%, outperforming both negative (2.38%)
 
 ## Limitations & Next Steps
 **Limitations:**
-- 2018 cohorts have artificially low retention rates, the data ends in October 2018, so recent customers simply didn't have time to come back. 
+- 2018 cohorts have artificially low retention rates : the data ends in October 2018, so recent customers simply didn't have time to come back. 
 - No demographic data available, we can't segment retention by age, location, or acquisition channel
-- The current dataset captures whether a customer returned, but not why they didn't. Adding exit intent signals, category browse data, or cart abandonment tracking would significantly improve the ability to intervene at the right.
+- The current dataset shows whether a customer returned, but not why they didn't. Adding exit intent signals, category browse data, or cart abandonment tracking would significantly improve the ability to intervene at the right.
 
 **Next steps:**
 - Build a churn prediction model using review score, order value, product category, and delivery time as features
