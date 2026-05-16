@@ -1,0 +1,4 @@
+kagglehub
+pandas
+pandas-gbq
+google-auth
