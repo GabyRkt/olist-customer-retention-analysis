@@ -128,6 +128,7 @@ This is not a seasonal problem. It is a structural one.
 
 **→** Build a VIP programme for decile 1 (free shipping, priority support, early access) to protect
 38% of revenue.
+
 **→** Before running upgrade campaigns for deciles 2–4, identify what defines decile 1 behaviour :
 is it order frequency, basket size, or product category? This segmentation should be the next
 query and the answer determines whether the upgrade lever is a second-purchase incentive,
